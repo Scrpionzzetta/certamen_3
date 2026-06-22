@@ -1,56 +1,52 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
 let videojuegos = [
-  { id: 1, nombre: 'Albion', genero: 'mmo rpg' },
-  { id: 2, nombre: 'Arc Riders', genero: 'extraction shooter' },
-  { id: 3, nombre: 'Stray', genero: 'Aventura' },
+  { id: 1, nombre: 'Albion',     genero: 'MMO RPG',            imagen: 'a.png'},
+  { id: 2, nombre: 'Arc Riders', genero: 'Extraction Shooter', imagen: 'b.png'},
+  { id: 3, nombre: 'Stray',      genero: 'Aventura',           imagen: 'c.png'},
 ];
 
-router.get(
-  '/', (req, res) => {
-    res.json(videojuegos);
-  }
-);
+// GET /catalogo
+router.get('/', (req, res) => {
+  res.json(videojuegos);
+});
 
+// GET /catalogo/:id
 router.get('/:id', (req, res) => {
-  const vjuegos = videojuegos.find(u => u.id === parseInt(req.params.id));
-
-  if (!vjuegos) {
-    return res.status(404).json({ error: 'Usuario no encontrado' });
-  }
-  res.json(vjuegos);
+  const juego = videojuegos.find(j => j.id === parseInt(req.params.id));
+  if (!juego) return res.status(404).json({ error: 'Juego no encontrado' });
+  res.json(juego);
 });
 
-router.post(
-  '/', (req, res) => {
-    const {nombre, genero} = req.body;
-    const nuevoId = videojuegos.length > 0 ? videojuegos[videojuegos.length - 1].id +1 : 1;
-    const vjuegos = {id: nuevoId, nombre, genero};
-    videojuegos.push(nuevoJuego);
-    res.status(201).json(vjuegos);
-  }
-);
+// POST /catalogo
+router.post('/', (req, res) => {
+  const { nombre, genero, imagen } = req.body;
+  const nuevoId = videojuegos.length > 0
+    ? videojuegos[videojuegos.length - 1].id + 1
+    : 1;
+  const nuevoJuego = { id: nuevoId, nombre, genero, imagen: imagen || '' };
+  videojuegos.push(nuevoJuego);
+  res.status(201).json(nuevoJuego);
+});
 
+// PUT /catalogo/:id
 router.put('/:id', (req, res) => {
-  const vjuegos = videojuegos.find(u => u.id === parseInt(req.params.id));
-  if (!vjuegos) {
-    return res.status(404).json({ error: 'Usuario no encontrado que pena' });
-  }
-  const { nombre, genero } = req.body;
-  if (nombre !== undefined) vjuegos.nombre = nombre;
-  if (genero !== undefined) vjuegos.genero = genero;
-  res.json(vjuegos);
+  const juego = videojuegos.find(j => j.id === parseInt(req.params.id));
+  if (!juego) return res.status(404).json({ error: 'Juego no encontrado' });
+  const { nombre, genero, imagen } = req.body;
+  if (nombre !== undefined) juego.nombre = nombre;
+  if (genero !== undefined) juego.genero = genero;
+  if (imagen !== undefined) juego.imagen = imagen;
+  res.json(juego);
 });
 
+// DELETE /catalogo/:id
 router.delete('/:id', (req, res) => {
-  const index = videojuegos.findIndex(u => u.id === parseInt(req.params.id));
-  if (index === -1) {
-    return res.status(404).json({ error: 'Juego no encontrado' });
-  }
+  const index = videojuegos.findIndex(j => j.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ error: 'Juego no encontrado' });
   const eliminado = videojuegos.splice(index, 1)[0];
-  res.json({ mensaje: 'Juego eliminado', Juego: eliminado });
+  res.json({ mensaje: 'Juego eliminado', juego: eliminado });
 });
 
 module.exports = router;
-
